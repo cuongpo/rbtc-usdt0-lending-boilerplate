@@ -1,6 +1,8 @@
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/rsksmart/rbtc-usdt0-lending-boilerplate/badge)](https://scorecard.dev/viewer/?uri=github.com/rsksmart/rbtc-usdt0-lending-boilerplate)
 [![CodeQL](https://github.com/rsksmart/rbtc-usdt0-lending-boilerplate/workflows/CodeQL/badge.svg)](https://github.com/rsksmart/rbtc-usdt0-lending-boilerplate/actions?query=workflow%3ACodeQL)
 
+<img src="rootstock-logo.png" alt="RSK Logo" style="width:100%; height: auto;" />
+
 # RBTC/USDT0 Mini Lending Boilerplate
 
 > **Goal:** a tiny, runnable boilerplate that shows how to:
