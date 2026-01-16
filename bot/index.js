@@ -42,7 +42,7 @@ console.log('🔐 Secure wallet management enabled');
 /**
  * /start - Welcome message
  */
-bot.onText(/\/start/, async (msg) => {
+bot.onText(/^\/start$/, async (msg) => {
   const chatId = msg.chat.id;
 
   const hasWallet = await wallet.walletExists(chatId);
@@ -79,7 +79,7 @@ Use /help to see all available commands.
 /**
  * /help - Show all commands
  */
-bot.onText(/\/help/, async (msg) => {
+bot.onText(/^\/help$/, async (msg) => {
   const chatId = msg.chat.id;
 
   const helpMessage = `
@@ -93,6 +93,7 @@ bot.onText(/\/help/, async (msg) => {
 \`/lock\` - Lock your wallet (clear session)
 \`/deletewallet <password>\` - Permanently delete your wallet
 \`/myaddress\` - Show your wallet address
+\`/exportkey\` - Export your private key (auto-deletes after 30s)
 
 📊 *View Information*
 \`/status\` - View complete account status
@@ -259,7 +260,7 @@ bot.onText(/\/unlock (.+)/, async (msg, match) => {
 /**
  * /lock - Lock wallet (clear session)
  */
-bot.onText(/\/lock/, async (msg) => {
+bot.onText(/^\/lock$/, async (msg) => {
   const chatId = msg.chat.id;
 
   if (userSessions.has(chatId)) {
@@ -308,7 +309,7 @@ bot.onText(/\/deletewallet (.+)/, async (msg, match) => {
 /**
  * /myaddress - Show user's address
  */
-bot.onText(/\/myaddress/, async (msg) => {
+bot.onText(/^\/myaddress$/, async (msg) => {
   const chatId = msg.chat.id;
 
   if (!userSessions.has(chatId)) {
@@ -320,9 +321,35 @@ bot.onText(/\/myaddress/, async (msg) => {
 });
 
 /**
+ * /exportkey - Export private key (requires unlock)
+ */
+bot.onText(/^\/exportkey$/, async (msg) => {
+  const chatId = msg.chat.id;
+
+  if (!userSessions.has(chatId)) {
+    return bot.sendMessage(chatId, '❌ Please unlock your wallet first using `/unlock <password>`', { parse_mode: 'Markdown' });
+  }
+
+  const session = userSessions.get(chatId);
+
+  // Send the private key and immediately delete it after a short delay
+  const keyMessage = await bot.sendMessage(chatId, `🔑 *Your Private Key*\n\n\`${session.privateKey}\`\n\n⚠️ *WARNING:* This message will be deleted in 30 seconds!\n\n📋 Copy it now and store it securely.\n🚫 Never share your private key with anyone!`, { parse_mode: 'Markdown' });
+
+  // Auto-delete after 30 seconds for security
+  setTimeout(async () => {
+    try {
+      await bot.deleteMessage(chatId, keyMessage.message_id);
+      bot.sendMessage(chatId, '🔒 Private key message has been deleted for security.', { parse_mode: 'Markdown' });
+    } catch (error) {
+      // Ignore if already deleted
+    }
+  }, 30000);
+});
+
+/**
  * /status - Show complete account status
  */
-bot.onText(/\/status/, async (msg) => {
+bot.onText(/^\/status$/, async (msg) => {
   const chatId = msg.chat.id;
 
   if (!userSessions.has(chatId)) {
@@ -348,7 +375,7 @@ bot.onText(/\/status/, async (msg) => {
 /**
  * /balance - Check balances
  */
-bot.onText(/\/balance/, async (msg) => {
+bot.onText(/^\/balance$/, async (msg) => {
   const chatId = msg.chat.id;
 
   if (!userSessions.has(chatId)) {
@@ -387,7 +414,7 @@ ${formatUSDT0(debtUsdt0)} USDT0
 /**
  * /health - Check health factor
  */
-bot.onText(/\/health/, async (msg) => {
+bot.onText(/^\/health$/, async (msg) => {
   const chatId = msg.chat.id;
 
   if (!userSessions.has(chatId)) {
@@ -428,7 +455,7 @@ Use /status for detailed account info.
 /**
  * /wallet - Check wallet balances
  */
-bot.onText(/\/wallet/, async (msg) => {
+bot.onText(/^\/wallet$/, async (msg) => {
   const chatId = msg.chat.id;
 
   if (!userSessions.has(chatId)) {
@@ -709,7 +736,7 @@ Use /status to see your updated account.
 /**
  * /info - Show contract information
  */
-bot.onText(/\/info/, async (msg) => {
+bot.onText(/^\/info$/, async (msg) => {
   const chatId = msg.chat.id;
 
   try {
